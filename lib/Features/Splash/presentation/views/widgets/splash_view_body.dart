@@ -2,8 +2,8 @@ import 'package:bookly/core/utils/assets.dart';
 import 'package:bookly/core/utils/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../../../../core/utils/styles.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../../../core/utils/styles.dart';
 import 'sliding_text.dart';
 
 class SplashViewBody extends StatefulWidget {
@@ -45,14 +45,14 @@ class _SplashViewbodyState extends State<SplashViewBody>
             style: Styles.textStyle14.copyWith(
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 4,
-                fontSize: 32,
+                letterSpacing: 4.w,
+                fontSize: 32.sp,
                 color: const Color(0xfffbf4ea)),
           ),
         ),
         //Image.asset(AssetsData.logo),
-        const SizedBox(
-          height: 4,
+         SizedBox(
+          height: 4.h,
         ),
         SlidingText(slidingAnimation: slidingAnimation),
       ],
@@ -77,10 +77,6 @@ class _SplashViewbodyState extends State<SplashViewBody>
       const Duration(seconds: 2),
       () {
         Navigator.pushReplacementNamed(context, loginScreen);
-        // Get.to(() => const HomeView(),
-        //     // calculations
-        //     transition: Transition.fade,
-        //     duration: kTranstionDuration);
 
       },
     );
