@@ -47,12 +47,12 @@ class BookDetailsSection extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         SizedBox(
-          height: 6.h,
+          height: 12.h,
         ),
         Opacity(
           opacity: .7,
           child: Text(
-            "المؤلف: $authorName",
+            "المؤلف : $authorName",
             style: Styles.textStyle18.copyWith(
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w500,
@@ -60,7 +60,7 @@ class BookDetailsSection extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 6.h,
+          height: 12.h,
         ),
         Opacity(
           opacity: .7,
@@ -73,7 +73,7 @@ class BookDetailsSection extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 6.h,
+          height: 12.h,
         ),
         Divider(
           height: 1.h,
@@ -82,16 +82,6 @@ class BookDetailsSection extends StatelessWidget {
           indent: 30.w,
         ),
         SizedBox(height: 12.h),
-        Opacity(
-          opacity: .7,
-          child: Text(
-            "حسن الجندي مؤلف مصري شاب حصل على شهرة من خلال ثلاثية (مخطوطة بن إسحاق) والتي وضعت منذ مدة طويلة على المنتديات العربية وانتهت بطباعتها ونزولها المكتبات المصرية، يتميز بسهولة تعبيراته واهتمامه بعامل التشويق داخل الروايات واختراقه أماكن كثيرة محرمة، يقول في أحد اللقاءات الصحفية أنه تلقى الكثير من الاتصالات والرسائل تطلب منه أرقام هواتف شخصيات معينة في روايته وعندما كان يخبرهم بأنها شخصيات ليست حقيقية كان البعض يصر على أنه يخفي حقيقتها لدواعي أمنية.دائماً ما يقول أنه يحاول أن يوجد نوعاً جديداً من أدب الرعب يناسب العقلية المصرية والعربية ويمكنه أن يفرض نفسه على الساحة العالمية وليس مجرد تقليد أو مسخ للقصص الأوربية عن الرعب والتي تتكلم عن مصاصي الدماء والمتحولين والمذؤوب، يجمع الكثير على أنه استطاع بعد ظهور أولى رواياته أن يثبت أنه يسير على الطريق الصحيح.",
-            style: Styles.textStyle18.copyWith(
-              fontStyle: FontStyle.italic,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
         SizedBox(
           height: 37.h,
         ),

@@ -3,6 +3,7 @@ import 'package:bookly/core/utils/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../../core/utils/styles.dart';
 import 'sliding_text.dart';
 
@@ -51,7 +52,7 @@ class _SplashViewbodyState extends State<SplashViewBody>
           ),
         ),
         //Image.asset(AssetsData.logo),
-         SizedBox(
+        SizedBox(
           height: 4.h,
         ),
         SlidingText(slidingAnimation: slidingAnimation),
@@ -75,9 +76,14 @@ class _SplashViewbodyState extends State<SplashViewBody>
   void navigateToHome() {
     Future.delayed(
       const Duration(seconds: 2),
-      () {
-        Navigator.pushReplacementNamed(context, loginScreen);
-
+      () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var status = prefs.getBool('isLoggedIn') ?? false;
+        if (status) {
+          Navigator.pushReplacementNamed(context, usersHomeScreen);
+        } else {
+          Navigator.pushReplacementNamed(context, loginScreen);
+        }
       },
     );
   }

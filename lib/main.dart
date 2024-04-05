@@ -1,7 +1,6 @@
 import 'package:bookly/routes.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/utils/constants.dart';
@@ -13,11 +12,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(
-    DevicePreview(
-      // enabled: !kReleaseMode,
-      builder: (context) => Bookly(),) ,
-  );
+  runApp(const Bookly());
 }
 
 class Bookly extends StatelessWidget {
@@ -28,9 +23,6 @@ class Bookly extends StatelessWidget {
     return ScreenUtilInit(
       builder: (_, child) {
         return   MaterialApp(
-            title: 'Bookly',
-            locale: DevicePreview.locale(context),
-            builder: DevicePreview.appBuilder,
             theme: ThemeData.dark().copyWith(
               scaffoldBackgroundColor: kPrimaryColor,
             ),

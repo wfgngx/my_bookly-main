@@ -301,6 +301,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../core/utils/constants.dart';
 import '../../../../../core/utils/strings.dart';
 import '../../../../../core/utils/styles.dart';
@@ -316,7 +317,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<Map<String, dynamic>> allBooks = [];
+  List searchBooks = [];
   bool gridView = true;
+  @override
+  void initState() {
+    super.initState();
+    getAllBooks();
+  }
+
+  Future getAllBooks() {
+    return FirebaseFirestore.instance.collection('books').get().then((value) {
+      setState(() {
+        allBooks = value.docs.map((book) => book.data()).toList();
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SearchView(),
+                  builder: (context) => SearchView(allBooks: allBooks),
                 ),
               );
             },
@@ -382,21 +398,39 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Logout'),
-          content: const SingleChildScrollView(
+          backgroundColor: const Color(0xfffbf4ea),
+          title: Text(
+            'Logout',
+            style: TextStyle(color: Colors.red, fontSize: 24.sp),
+          ),
+          content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure, do you want to logout?'),
+                Text(
+                  'Are you sure, do you want to logout?',
+                  style: TextStyle(color: kPrimaryColor, fontSize: 14.sp),
+                ),
               ],
             ),
           ),
           actions: <Widget>[
-            TextButton(
-              child: const Text('Yes'),
+            OutlinedButton(
+              style: const ButtonStyle(
+                  foregroundColor: MaterialStatePropertyAll(
+                    Color(0xfffbf4ea),
+                  ),
+                  backgroundColor: MaterialStatePropertyAll(Colors.red)),
+              child: Text(
+                'Yes',
+                style: TextStyle(fontSize: 14.sp),
+              ),
               onPressed: () async {
                 try {
                   await FirebaseAuth.instance.signOut();
                   Navigator.pushReplacementNamed(context, loginScreen);
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  prefs.setBool('isLoggedIn', false);
                 } catch (error) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Authentication Failed')),
@@ -404,8 +438,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               },
             ),
-            TextButton(
-              child: const Text('No'),
+            OutlinedButton(
+              style: const ButtonStyle(
+                  foregroundColor: MaterialStatePropertyAll(
+                    Color(0xfffbf4ea),
+                  ),
+                  backgroundColor: MaterialStatePropertyAll(kPrimaryColor)),
+              child: Text(
+                'No',
+                style: TextStyle(fontSize: 14.sp),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -418,27 +460,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBody() {
     return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('books').snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: Text('Something went wrong'));
-          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No books available'));
-          } else {
-            return gridView
-                ? _buildGridView(snapshot.data!.docs)
-                : _buildListView(snapshot.data!.docs);
-          }
-        },
-      ),
-    );
+        height: MediaQuery.of(context).size.height,
+        child: allBooks.isEmpty
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : buildBody(context));
   }
 
-  Widget _buildGridView(List<QueryDocumentSnapshot> docs) {
+  Widget buildBody(BuildContext context) {
+    return gridView ? _buildGridView(allBooks) : _buildListView(allBooks);
+  }
+
+  Widget _buildGridView(List books) {
     return Padding(
       padding: EdgeInsets.all(8.0.r),
       child: GridView.builder(
@@ -448,42 +482,40 @@ class _HomeScreenState extends State<HomeScreen> {
           childAspectRatio: 0.7.r,
           crossAxisCount: 2,
         ),
-        itemCount: docs.length,
+        itemCount: books.length,
         itemBuilder: (BuildContext context, int index) {
-          Map<String, dynamic> data =
-              docs[index].data() as Map<String, dynamic>;
+          // Map<String, dynamic> data =
+          //     docs[index].data() as Map<String, dynamic>;
           return GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => BookDetailsView(
-                    authorName: data['authorName'],
-                    bookName: data['bookName'],
-                    bookDescription: data['bookDescription'],
+                    authorName: books[index]['authorName'],
+                    bookName: books[index]['bookName'],
+                    bookDescription: books[index]['bookDescription'],
                     aboutAuthor: '0',
-                    coverImage: data['bookCover'],
-                    coverPdf: data['bookPdf'],
+                    coverImage: books[index]['bookCover'],
+                    coverPdf: books[index]['bookPdf'],
                   ),
                 ),
               );
             },
-            child: CustomBookImage(imageUrl: data['bookCover']),
+            child: CustomBookImage(imageUrl: books[index]['bookCover']),
           );
         },
       ),
     );
   }
 
-  Widget _buildListView(List<QueryDocumentSnapshot> docs) {
+  Widget _buildListView(List books) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: ListView.builder(
-        itemCount: docs.length,
+        itemCount: books.length,
         itemBuilder: (BuildContext context, int index) {
-          Map<String, dynamic> data =
-              docs[index].data() as Map<String, dynamic>;
-          return _buildListItem(context, data);
+          return _buildListItem(context, books[index]);
         },
       ),
     );
@@ -544,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen> {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: Styles.textStyle30
-            .copyWith(fontWeight: FontWeight.bold, fontSize: 14.sp),
+            .copyWith(fontWeight: FontWeight.bold, fontSize: 24.sp),
       ),
     );
   }
@@ -556,7 +588,7 @@ class _HomeScreenState extends State<HomeScreen> {
         authorName,
         style: Styles.textStyle18.copyWith(
           fontStyle: FontStyle.italic,
-          fontSize: 12.sp,
+          fontSize: 16.sp,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -570,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
         description ?? '',
         maxLines: 5,
         style: Styles.textStyle20.copyWith(
-          fontSize: 8.sp,
+          fontSize: 12.sp,
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -586,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       child: Container(
-        width: 80.w,
+        width: 70.w,
         height: 35.h,
         decoration: BoxDecoration(
           color: Colors.red,
@@ -595,7 +627,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Center(
           child: Icon(
             Icons.menu_book_sharp,
-            size: 32.r,
+            size: 26.r,
             color: Colors.white,
           ),
         ),

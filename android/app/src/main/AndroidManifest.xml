@@ -10,9 +10,9 @@
   
 </queries>
    <application
-        android:label="bookly"
+        android:label="MAKTABTY"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_book"
         android:usesCleartextTraffic="true"
 
         >
